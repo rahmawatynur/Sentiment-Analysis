@@ -1,11 +1,13 @@
 import pandas as pd
 import re
 
-df_slang = pd.read_csv(r"C:\Users\ASUS\Downloads\archive\new_kamusalay.csv", encoding='latin=1', header=None)
+df_slang = pd.read_csv(r"https://raw.githubusercontent.com/adamazanos/Challenge-PLATINUM-K6/master/twitter_abuse/new_kamusalay.csv", encoding='latin=1', header=None)
 df_slang = df_slang.rename(columns={0: 'slang', 1: 'formal'})
 
-df_stoplist= pd.read_csv(r"C:\Users\ASUS\Downloads\archive\stopwordbahasa.csv", header=None)
-df_stoplist= df_stoplist.rename(columns={0: 'kata'})
+import nltk
+nltk.download('stopwords')
+from nltk.corpus import stopwords
+list_stopwords = set(stopwords.words('indonesian'))
 
 def data_cleaning (tweet):
     #Replace enter
@@ -20,9 +22,11 @@ def data_cleaning (tweet):
     c5 = re.sub ('[^0-9a-zA-Z]+', ' ', c4)
     #Replace emoticon
     c6 = re.sub ('x[a-z0-9]{2}', ' ', c5)
+    #Replace Number
+    c7 = re.sub ("\d+", ' ', c6)
     #Replace extra space
-    c7 = re.sub ('  +', '', c6)
-    return c7
+    c8 = re.sub ('  +', '', c7)
+    return c8
 
 def case_folding (tweet):
     return tweet.lower()
@@ -40,7 +44,7 @@ def slang_normalization(tweets):
 def stopword_removal(tweet):
     resp = ''
     for item in tweet.split():
-        if item not in df_stoplist['kata'].values:
+        if item not in list_stopwords:
             resp += item
         resp +=' '
     clean = re.sub('  +', ' ', resp)
@@ -52,4 +56,3 @@ def data_prepocessing(tweet):
     tweet = slang_normalization(tweet)
     tweet = stopword_removal(tweet)
     return tweet
-
